@@ -1,4 +1,5 @@
-import React from "react";
+'use client'
+import React, { useCallback } from "react";
 import { BsTwitter } from "react-icons/bs";
 import { IoHomeOutline } from "react-icons/io5";
 import { IoSearchOutline } from "react-icons/io5";
@@ -11,6 +12,7 @@ import { BsPeople } from "react-icons/bs";
 import FeedCard from "@/components/FeedCard";
 import { Inter, Quicksand } from "next/font/google";
 import { FaXTwitter } from "react-icons/fa6";
+import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 
 interface TwitterSidebarButton {
   title: string;
@@ -60,6 +62,9 @@ const SidebarMenuIcons: TwitterSidebarButton[] = [
 ];
 
 export default function Home() {
+
+  const handleLoginWithGoogle = useCallback((cred: CredentialResponse) => {}, [])
+  
   return (
     <div className={inter.className}>
       <div className="grid grid-cols-12 h-screen w-screen px-48">
@@ -91,7 +96,12 @@ export default function Home() {
           <FeedCard />
           <FeedCard />
         </div>
-        <div className="col-span-3"></div>
+        <div className="col-span-3 p-5">
+          <div className="p-5 rounded-lg">
+            <h1 className="my-2 text-2xl">New to Twitter?</h1>
+            <GoogleLogin onSuccess={cred=>console.log(cred)} />
+          </div>
+        </div>
       </div>
     </div>
   );
