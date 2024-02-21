@@ -12,15 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const db_1 = require("../clients/db");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const JWT_SECRET = "piyush@12345";
 class JWTService {
-    static generateTokenForUser(userId) {
+    static generateTokenForUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield db_1.prismaClient.user.findUnique({
-                where: { id: userId }
-            });
             const payload = {
                 id: user === null || user === void 0 ? void 0 : user.id,
                 email: user === null || user === void 0 ? void 0 : user.email
@@ -28,6 +24,14 @@ class JWTService {
             const token = jsonwebtoken_1.default.sign(payload, JWT_SECRET);
             return token;
         });
+    }
+    static decodeToken(token) {
+        try {
+            return jsonwebtoken_1.default.verify(token, JWT_SECRET);
+        }
+        catch (error) {
+            return null;
+        }
     }
 }
 exports.default = JWTService;
