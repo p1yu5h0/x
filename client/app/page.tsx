@@ -19,6 +19,12 @@ import { verifyUserGoogleTokenQuery } from "@/graphql/query/user";
 import { useCurrentUser } from "@/hooks/user";
 import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
+import { CiImageOn } from "react-icons/ci";
+import { MdOutlineGifBox } from "react-icons/md";
+import { BiPoll } from "react-icons/bi";
+import { PiSmileyBold } from "react-icons/pi";
+import { AiOutlineSchedule } from "react-icons/ai";
+import { GrLocation } from "react-icons/gr";
 
 interface TwitterSidebarButton {
   title: string;
@@ -71,7 +77,14 @@ export default function Home() {
   const { user } = useCurrentUser();
   const queryClient = useQueryClient();
 
-  console.log(user?.email);
+  const handleSelectImage = useCallback(
+    () => {
+      const input = document.createElement('input')
+      input.setAttribute('type', 'file');
+      input.setAttribute('accept', 'image/*');
+      input.click();
+    }, []
+  )
 
   const handleLoginWithGoogle = useCallback(
     async (cred: CredentialResponse) => {
@@ -94,7 +107,6 @@ export default function Home() {
       await queryClient.invalidateQueries({
         queryKey: ["current-user"],
       });
-
     },
     [queryClient]
   );
@@ -124,7 +136,7 @@ export default function Home() {
               Tweet
             </button>
           </div>
-          <div className="absolute bottom-5 flex gap-2 ml-3 items-center bg-slate-900 px-3 py-2 rounded-full">
+          <div className="absolute bottom-5 flex gap-2 ml-3 items-center px-3 py-2 rounded-full">
             {user && user.profileImageURL && (
               <Image
                 className="rounded-full"
@@ -135,11 +147,62 @@ export default function Home() {
               />
             )}
             <div className="flex flex-row">
-              <h3 className="text-xl">{user?.firstName} {user?.lastName}</h3>
+              <h3 className="text-xl">
+                {user?.firstName} {user?.lastName}
+              </h3>
             </div>
           </div>
         </div>
         <div className="col-span-6 border-r-[0.2px] border-l-[0.2px] border-gray-600">
+          <div>
+            <div className="border border-l-0 border-r-0 border-b-0 border-gray-600 p-3 hover:bg-slate-900 transition-all cursor-pointer">
+              <div className="grid grid-cols-12">
+                <div className="col-span-1">
+                  {user?.profileImageURL && (
+                    <Image
+                      src={user?.profileImageURL}
+                      alt="image"
+                      height={50}
+                      width={50}
+                      className="rounded-full pt-1.5"
+                    />
+                  )}
+                </div>
+                <div className="col-span-11">
+                  <textarea
+                    style={{
+                      fontSize: "1.5rem",
+                      fontWeight: 400,
+                      lineHeight: 1.5,
+                      color: "#fff",
+                      backgroundColor: "transparent",
+                      border: "none",
+                      borderBottom: "1px solid #38444d",
+                      padding: "1rem 1.5rem",
+                      width: "100%",
+                      resize: "none",
+                      outline: "none",
+                    }}
+                    placeholder="What is happening?!"
+                    rows={3}
+                  ></textarea>
+                  <div className="mt-2 flex justify-between items-center">
+                    <div className="flex mx-5 gap-3">
+                      <CiImageOn className="text-xl" color="#1DA1F2" onClick={handleSelectImage}/>
+                      <MdOutlineGifBox className="text-xl" color="#1DA1F2" />
+                      <BiPoll className="text-xl" color="#1DA1F2" />
+                      <PiSmileyBold className="text-xl" color="#1DA1F2" />
+                      <AiOutlineSchedule className="text-xl" color="#1DA1F2" />
+                      <GrLocation className="text-xl" color="#1DA1F2"/>
+                    </div>
+                    <button className="bg-[#1DA1F2] px-3 py-2 rounded-full text-sm">
+                      Tweet
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           <FeedCard />
           <FeedCard />
           <FeedCard />
