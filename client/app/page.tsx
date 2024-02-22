@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { BsTwitter } from "react-icons/bs";
 import { IoHomeOutline } from "react-icons/io5";
 import { IoSearchOutline } from "react-icons/io5";
@@ -25,6 +25,8 @@ import { BiPoll } from "react-icons/bi";
 import { PiSmileyBold } from "react-icons/pi";
 import { AiOutlineSchedule } from "react-icons/ai";
 import { GrLocation } from "react-icons/gr";
+import { useGetAllTweets } from "@/hooks/tweet";
+import { Tweet } from "@/gql/graphql";
 
 interface TwitterSidebarButton {
   title: string;
@@ -75,7 +77,11 @@ const SidebarMenuIcons: TwitterSidebarButton[] = [
 
 export default function Home() {
   const { user } = useCurrentUser();
+  const { tweets = [] } = useGetAllTweets();
+  console.log(tweets)
+  // const { mutate } = useCreateTweet();
   const queryClient = useQueryClient();
+  const [content, setContent] = useState('');
 
   const handleSelectImage = useCallback(
     () => {
@@ -85,6 +91,12 @@ export default function Home() {
       input.click();
     }, []
   )
+
+  // const hangleCreateTweet = useCallback(() => {
+  //   mutate({
+  //     content
+  //   })
+  // }, [content, mutate])
 
   const handleLoginWithGoogle = useCallback(
     async (cred: CredentialResponse) => {
@@ -170,6 +182,8 @@ export default function Home() {
                 </div>
                 <div className="col-span-11">
                   <textarea
+                    value={content}
+                    onChange={e => setContent(e.target.value)}
                     style={{
                       fontSize: "1.5rem",
                       fontWeight: 400,
@@ -195,7 +209,9 @@ export default function Home() {
                       <AiOutlineSchedule className="text-xl" color="#1DA1F2" />
                       <GrLocation className="text-xl" color="#1DA1F2"/>
                     </div>
-                    <button className="bg-[#1DA1F2] px-3 py-2 rounded-full text-sm">
+                    <button 
+                    // onClick={hangleCreateTweet} 
+                    className="bg-[#1DA1F2] px-3 py-2 rounded-full text-sm">
                       Tweet
                     </button>
                   </div>
@@ -203,11 +219,9 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
+          {
+            tweets?.map(tweet => tweet? <FeedCard key={tweet?.id} data ={tweet as Tweet} /> : null)
+          }
         </div>
         <div className="col-span-3 p-5">
           {!user && (

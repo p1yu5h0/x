@@ -6,26 +6,32 @@ import { IoMdHeartEmpty } from "react-icons/io";
 import { CgLoadbarSound } from "react-icons/cg";
 import { PiBookmarkSimple } from "react-icons/pi";
 import { CgSoftwareUpload } from "react-icons/cg";
+import { Tweet } from "@/gql/graphql";
 
-const FeedCard: React.FC = () => {
+interface FeedCardProps {
+  data: Tweet
+}
+
+const FeedCard: React.FC<FeedCardProps> = (props) => {
+  const {data} = props
+  console.log(data)
   return (
     <div className="border border-l-0 border-r-0 border-b-0 border-gray-600 p-5 hover:bg-slate-900 transition-all cursor-pointer">
       <div className="grid grid-cols-12">
         <div className="col-span-1">
-          <Image
-            src="https://avatars.githubusercontent.com/u/74711555?v=4"
+          {data.author?.profileImageURL && <Image
+            src={data.author?.profileImageURL}
             alt="image"
             height={50}
             width={50}
             className="rounded-full"
-          />
+          />}
         </div>
         <div className="col-span-11 pl-2">
-          <h5 className="font-semibold">Piyush Agrawal</h5>
-          <p>
-            Is it just me or everyone else? Do you feel the code quality
-            decrease as the project size increases?
-          </p>
+          <h5 className="font-semibold">{data.author?.firstName} {data.author?.lastName}</h5>
+          {data.content && <p>
+            {data.content}
+          </p>}
           <div className="flex justify-between pt-2.5 px-1.5 text-xl items-center w-[100%]">
             <div>
               <TbMessageCircle />
