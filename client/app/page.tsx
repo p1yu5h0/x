@@ -25,7 +25,7 @@ import { BiPoll } from "react-icons/bi";
 import { PiSmileyBold } from "react-icons/pi";
 import { AiOutlineSchedule } from "react-icons/ai";
 import { GrLocation } from "react-icons/gr";
-import { useGetAllTweets } from "@/hooks/tweet";
+import { useCreateTweet, useGetAllTweets } from "@/hooks/tweet";
 import { Tweet } from "@/gql/graphql";
 
 interface TwitterSidebarButton {
@@ -79,7 +79,7 @@ export default function Home() {
   const { user } = useCurrentUser();
   const { tweets = [] } = useGetAllTweets();
   console.log(tweets)
-  // const { mutate } = useCreateTweet();
+  const { mutate } = useCreateTweet();
   const queryClient = useQueryClient();
   const [content, setContent] = useState('');
 
@@ -92,11 +92,12 @@ export default function Home() {
     }, []
   )
 
-  // const hangleCreateTweet = useCallback(() => {
-  //   mutate({
-  //     content
-  //   })
-  // }, [content, mutate])
+  const hangleCreateTweet = useCallback(()=>{
+    mutate({
+      content: content,
+      imageURL: user?.profileImageURL || null,
+    })
+  }, [content, mutate])
 
   const handleLoginWithGoogle = useCallback(
     async (cred: CredentialResponse) => {
@@ -210,7 +211,7 @@ export default function Home() {
                       <GrLocation className="text-xl" color="#1DA1F2"/>
                     </div>
                     <button 
-                    // onClick={hangleCreateTweet} 
+                    onClick={()=>{hangleCreateTweet(), setContent("")}} 
                     className="bg-[#1DA1F2] px-3 py-2 rounded-full text-sm">
                       Tweet
                     </button>
