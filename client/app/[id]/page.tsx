@@ -1,31 +1,26 @@
 "use client";
-import React, { useCallback, useMemo, useState } from "react";
-import { BsTwitter } from "react-icons/bs";
-import { IoHomeOutline } from "react-icons/io5";
-import { IoSearchOutline } from "react-icons/io5";
-import { IoMdNotificationsOutline } from "react-icons/io";
-import { MdOutlineLocalPostOffice } from "react-icons/md";
-import { PiBookmarkSimple } from "react-icons/pi";
-import { FaRegUser } from "react-icons/fa";
-import { CiCircleMore } from "react-icons/ci";
-import { BsPeople } from "react-icons/bs";
-import FeedCard from "@/components/FeedCard";
-import { Inter, Quicksand } from "next/font/google";
-import { FaXTwitter } from "react-icons/fa6";
-import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
-import toast, { Toaster } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 import { graphQLClient } from "@/clients/api";
 import { verifyUserGoogleTokenQuery } from "@/graphql/query/user";
+import { useGetAllTweets, useCreateTweet } from "@/hooks/tweet";
 import { useCurrentUser } from "@/hooks/user";
+import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import { useQueryClient } from "@tanstack/react-query";
-import Image from "next/image";
-import { CiImageOn } from "react-icons/ci";
-import { MdOutlineGifBox } from "react-icons/md";
-import { BiPoll } from "react-icons/bi";
-import { PiSmileyBold } from "react-icons/pi";
-import { AiOutlineSchedule } from "react-icons/ai";
+import { NextPage } from "next";
+import { useCallback, useMemo } from "react";
+import toast from "react-hot-toast";
+import { BsPeople, BsTwitter } from "react-icons/bs";
+import { CiCircleMore, CiImageOn } from "react-icons/ci";
 import { GrLocation } from "react-icons/gr";
-import { useCreateTweet, useGetAllTweets } from "@/hooks/tweet";
+import { MdOutlineGifBox, MdOutlineLocalPostOffice } from "react-icons/md";
+import { PiBookmarkSimple, PiSmileyBold } from "react-icons/pi";
+import Image from "next/image";
+import { Inter } from "next/font/google";
+import { FaRegUser } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+import { IoIosArrowRoundBack, IoMdNotificationsOutline } from "react-icons/io";
+import { IoHomeOutline, IoSearchOutline } from "react-icons/io5";
+import FeedCard from "@/components/FeedCard";
 import { Tweet } from "@/gql/graphql";
 import Link from "next/link";
 
@@ -37,13 +32,11 @@ interface TwitterSidebarButton {
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Home() {
+const UserPage: NextPage = () => {
   const { user } = useCurrentUser();
-  const { tweets = [] } = useGetAllTweets();
-  console.log(tweets)
-  const { mutate } = useCreateTweet();
   const queryClient = useQueryClient();
-  const [content, setContent] = useState('');
+
+  const router = useRouter();
 
   const SidebarMenuIcons: TwitterSidebarButton[] = useMemo(
     () => [
@@ -96,22 +89,6 @@ export default function Home() {
     [user?.id]
   );
 
-  const handleSelectImage = useCallback(
-    () => {
-      const input = document.createElement('input')
-      input.setAttribute('type', 'file');
-      input.setAttribute('accept', 'image/*');
-      input.click();
-    }, []
-  )
-
-  const hangleCreateTweet = useCallback(()=>{
-    mutate({
-      content: content,
-      imageURL: user?.profileImageURL || null,
-    })
-  }, [content, mutate])
-
   const handleLoginWithGoogle = useCallback(
     async (cred: CredentialResponse) => {
       const googleToken = cred.credential;
@@ -137,10 +114,10 @@ export default function Home() {
     [queryClient]
   );
 
-  const handleLogout = useCallback(()=>{
+  const handleLogout = useCallback(() => {
     window.localStorage.removeItem("__twitter_token");
     window.location.reload();
-  }, [])
+  }, []);
 
   return (
     <div className={inter.className}>
@@ -187,62 +164,32 @@ export default function Home() {
           </div>
         </div>
         <div className="col-span-6 border-r-[0.2px] border-l-[0.2px] border-gray-600">
-          <div>
-            <div className="border border-l-0 border-r-0 border-b-0 border-gray-600 p-3 hover:bg-slate-900 transition-all cursor-pointer">
-              <div className="grid grid-cols-12">
-                <div className="col-span-1">
-                  {user?.profileImageURL && (
-                    <Image
-                      src={user?.profileImageURL}
-                      alt="image"
-                      height={50}
-                      width={50}
-                      className="rounded-full pt-1.5"
-                    />
-                  )}
-                </div>
-                <div className="col-span-11">
-                  <textarea
-                    value={content}
-                    onChange={e => setContent(e.target.value)}
-                    style={{
-                      fontSize: "1.5rem",
-                      fontWeight: 400,
-                      lineHeight: 1.5,
-                      color: "#fff",
-                      backgroundColor: "transparent",
-                      border: "none",
-                      borderBottom: "1px solid #38444d",
-                      padding: "1rem 1.5rem",
-                      width: "100%",
-                      resize: "none",
-                      outline: "none",
-                    }}
-                    placeholder="What is happening?!"
-                    rows={3}
-                  ></textarea>
-                  <div className="mt-2 flex justify-between items-center">
-                    <div className="flex mx-5 gap-3">
-                      <CiImageOn className="text-xl" color="#1DA1F2" onClick={handleSelectImage}/>
-                      <MdOutlineGifBox className="text-xl" color="#1DA1F2" />
-                      <BiPoll className="text-xl" color="#1DA1F2" />
-                      <PiSmileyBold className="text-xl" color="#1DA1F2" />
-                      <AiOutlineSchedule className="text-xl" color="#1DA1F2" />
-                      <GrLocation className="text-xl" color="#1DA1F2"/>
-                    </div>
-                    <button 
-                    onClick={()=>{hangleCreateTweet(), setContent("")}} 
-                    className="bg-[#1DA1F2] px-3 py-2 rounded-full text-sm">
-                      Tweet
-                    </button>
-                  </div>
-                </div>
+          <div className="mt-4 mx-3">
+            <nav className=" flex items-center gap-3 ">
+              <IoIosArrowRoundBack className="text-4xl" />
+              <div>
+                <div className="text-2xl font-bold">Piyush Agrawal</div>
+                <div className="text-sm text-slate-500">1080 Tweets</div>
               </div>
+            </nav>
+            <div className="p-4 border-b border-slate-600">
+              {user?.profileImageURL && (
+                <Image
+                  src={user?.profileImageURL}
+                  alt="user-image"
+                  width={100}
+                  height={100}
+                  className="rounded-full"
+                />
+              )}
+              <div className="text-xl font-bold mt-3">Piyush Agrawal</div>
+            </div>
+            <div>
+              {user?.tweets?.map((tweet) => (
+                <FeedCard data={tweet as Tweet} key={tweet?.id} />
+              ))}
             </div>
           </div>
-          {
-            tweets?.map(tweet => tweet? <FeedCard key={tweet?.id} data ={tweet as Tweet} /> : null)
-          }
         </div>
         <div className="col-span-3 p-5">
           {!user && (
@@ -255,4 +202,6 @@ export default function Home() {
       </div>
     </div>
   );
-}
+};
+
+export default UserPage;
