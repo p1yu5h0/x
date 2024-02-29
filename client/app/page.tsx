@@ -124,6 +124,11 @@ export default function Home() {
     [queryClient]
   );
 
+  const handleLogout = useCallback(()=>{
+    window.localStorage.removeItem("__twitter_token");
+    window.location.reload();
+  }, [])
+
   return (
     <div className={inter.className}>
       <div className="grid grid-cols-12 h-screen w-screen px-48">
@@ -157,6 +162,7 @@ export default function Home() {
                 alt=""
                 width={50}
                 height={50}
+                onClick={handleLogout}
               />
             )}
             <div className="flex flex-row">
