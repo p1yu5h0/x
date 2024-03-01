@@ -50,35 +50,41 @@ const queries = {
           email: data.email,
           firstName: data.given_name,
           lastName: data.family_name,
-          profileImageURL: data.picture
+          profileImageURL: data.picture,
         },
       });
     }
 
     const userInDB = await prismaClient.user.findUnique({
-        where: {email: data.email},
-    })
+      where: { email: data.email },
+    });
 
-    if(!userInDB) throw new Error("user not found in the db")
+    if (!userInDB) throw new Error("user not found in the db");
 
     const jwtToken = JWTService.generateTokenForUser(userInDB);
 
     return jwtToken;
   },
   getCurrentUser: async (parent: any, args: any, ctx: GraphQLContext) => {
-    const id = ctx.user?.id; 
-    if(!id){
+    const id = ctx.user?.id;
+    if (!id) {
       return null;
     }
-    const user = await prismaClient.user.findUnique({ where: {id: id} })
-    return user
-  }
+    const user = await prismaClient.user.findUnique({ where: { id: id } });
+    return user;
+  },
+  getUserById: async (
+    parent: any,
+    { id }: { id: string },
+    ctx: GraphQLContext
+  ) => prismaClient.user.findUnique({ where: { id } }),
 };
 
 const extraResolvers = {
   User: {
-    tweets: (parent: User) => prismaClient.tweet.findMany({where: { author: { id: parent.id }}})
-  }
-}
+    tweets: (parent: User) =>
+      prismaClient.tweet.findMany({ where: { author: { id: parent.id } } }),
+  },
+};
 
 export const resolvers = { queries, extraResolvers };

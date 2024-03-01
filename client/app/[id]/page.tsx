@@ -1,12 +1,12 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { graphQLClient } from "@/clients/api";
-import { verifyUserGoogleTokenQuery } from "@/graphql/query/user";
+import { getUserById, verifyUserGoogleTokenQuery } from "@/graphql/query/user";
 import { useGetAllTweets, useCreateTweet } from "@/hooks/tweet";
 import { useCurrentUser } from "@/hooks/user";
 import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import { useQueryClient } from "@tanstack/react-query";
-import { NextPage } from "next";
+import { GetServerSideProps, NextPage } from "next";
 import { useCallback, useMemo } from "react";
 import toast from "react-hot-toast";
 import { BsPeople, BsTwitter } from "react-icons/bs";
@@ -21,7 +21,7 @@ import { FaXTwitter } from "react-icons/fa6";
 import { IoIosArrowRoundBack, IoMdNotificationsOutline } from "react-icons/io";
 import { IoHomeOutline, IoSearchOutline } from "react-icons/io5";
 import FeedCard from "@/components/FeedCard";
-import { Tweet } from "@/gql/graphql";
+import { Tweet, User } from "@/gql/graphql";
 import Link from "next/link";
 
 interface TwitterSidebarButton {
@@ -30,13 +30,18 @@ interface TwitterSidebarButton {
   link: string;
 }
 
+interface ServerProps {
+  user?: User
+}
+
 const inter = Inter({ subsets: ["latin"] });
 
-const UserPage: NextPage = () => {
+const UserPage: NextPage<ServerProps> = (props) => {
   const { user } = useCurrentUser();
   const queryClient = useQueryClient();
 
   const router = useRouter();
+  console.log(props);
 
   const SidebarMenuIcons: TwitterSidebarButton[] = useMemo(
     () => [
@@ -203,5 +208,24 @@ const UserPage: NextPage = () => {
     </div>
   );
 };
+
+//this is a server side rendered page
+export const getServerSideProps: GetServerSideProps<ServerProps> = async(cxt) => {
+  const id = cxt.query.id as string | undefined;
+
+  console.log(id)
+
+  if(!id) return { notFound: true, props: { user: undefined } }
+
+  const userInfo = await graphQLClient.request(getUserById, {id});
+
+  if(!userInfo?.getUserById) return {notFound: true}
+
+  return {
+    props: {
+      userInfo: userInfo.getUserById as User
+    }
+  }
+}
 
 export default UserPage;

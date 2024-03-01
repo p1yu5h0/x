@@ -34,7 +34,7 @@ const queries = {
                     email: data.email,
                     firstName: data.given_name,
                     lastName: data.family_name,
-                    profileImageURL: data.picture
+                    profileImageURL: data.picture,
                 },
             });
         }
@@ -54,11 +54,12 @@ const queries = {
         }
         const user = yield db_1.prismaClient.user.findUnique({ where: { id: id } });
         return user;
-    })
+    }),
+    getUserById: (parent, { id }, ctx) => __awaiter(void 0, void 0, void 0, function* () { return db_1.prismaClient.user.findUnique({ where: { id } }); }),
 };
 const extraResolvers = {
     User: {
-        tweets: (parent) => db_1.prismaClient.tweet.findMany({ where: { author: { id: parent.id } } })
-    }
+        tweets: (parent) => db_1.prismaClient.tweet.findMany({ where: { author: { id: parent.id } } }),
+    },
 };
 exports.resolvers = { queries, extraResolvers };
