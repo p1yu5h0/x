@@ -287,7 +287,7 @@ export default function Home() {
             tweet ? <FeedCard key={tweet?.id} data={tweet as Tweet} /> : null
           )}
         </div>
-        <div className="hidden sm:col-span-3 p-5">
+        <div className="col-span-3 p-5">
           {!user && (
             <div className="p-5 rounded-lg">
               <h1 className="my-2 text-2xl">New to Twitter?</h1>

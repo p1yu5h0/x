@@ -60,6 +60,43 @@ const queries = {
 const extraResolvers = {
     User: {
         tweets: (parent) => db_1.prismaClient.tweet.findMany({ where: { author: { id: parent.id } } }),
+        followers: (parent) => __awaiter(void 0, void 0, void 0, function* () {
+            const result = yield db_1.prismaClient.follows.findMany({
+                where: { following: { id: parent.id } },
+                include: { follower: true, following: true },
+            });
+            return result.map((el) => el.follower);
+        }),
+        following: (parent) => __awaiter(void 0, void 0, void 0, function* () {
+            const result = yield db_1.prismaClient.follows.findMany({
+                where: { follower: { id: parent.id } },
+                include: { follower: true, following: true },
+            });
+            return result.map((el) => el.following);
+        }),
     },
 };
-exports.resolvers = { queries, extraResolvers };
+const mutations = {
+    followUser: (parent, { to }, ctx) => __awaiter(void 0, void 0, void 0, function* () {
+        if (!ctx.user || !ctx.user.id)
+            throw new Error("unauthorized access");
+        yield db_1.prismaClient.follows.create({
+            data: {
+                follower: { connect: { id: ctx.user.id } },
+                following: { connect: { id: to } },
+            },
+        });
+        return true;
+    }),
+    unFollowUser: (parent, { to }, ctx) => __awaiter(void 0, void 0, void 0, function* () {
+        if (!ctx.user || !ctx.user.id)
+            throw new Error("unauthorized access");
+        yield db_1.prismaClient.follows.delete({
+            where: {
+                followerId_followingId: { followerId: ctx.user.id, followingId: to },
+            },
+        });
+        return true;
+    }),
+};
+exports.resolvers = { queries, extraResolvers, mutations };

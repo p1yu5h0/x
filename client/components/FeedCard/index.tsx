@@ -39,6 +39,7 @@ const FeedCard: React.FC<FeedCardProps> = (props) => {
               <Image
                 src={data?.imageURL}
                 alt={"image"}
+                className="p-4"
                 height={400}
                 width={400}
               />
