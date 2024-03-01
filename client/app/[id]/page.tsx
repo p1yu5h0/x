@@ -210,22 +210,22 @@ const UserPage: NextPage<ServerProps> = (props) => {
 };
 
 //this is a server side rendered page
-export const getServerSideProps: GetServerSideProps<ServerProps> = async(cxt) => {
-  const id = cxt.query.id as string | undefined;
+// export const getServerSideProps: GetServerSideProps<ServerProps> = async(cxt) => {
+//   const id = cxt.query.id as string | undefined;
 
-  console.log(id)
+//   console.log(id)
 
-  if(!id) return { notFound: true, props: { user: undefined } }
+//   if(!id) return { notFound: true, props: { user: undefined } }
 
-  const userInfo = await graphQLClient.request(getUserById, {id});
+//   const userInfo = await graphQLClient.request(getUserById, {id});
 
-  if(!userInfo?.getUserById) return {notFound: true}
+//   if(!userInfo?.getUserById) return {notFound: true}
 
-  return {
-    props: {
-      userInfo: userInfo.getUserById as User
-    }
-  }
-}
+//   return {
+//     props: {
+//       userInfo: userInfo.getUserById as User
+//     }
+//   }
+// }
 
 export default UserPage;
