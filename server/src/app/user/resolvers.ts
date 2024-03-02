@@ -3,6 +3,7 @@ import axios from "axios";
 import { prismaClient } from "../../clients/db";
 import JWTService from "../../services/jwt";
 import { GraphQLContext } from "../../interfaces";
+import { redisClient } from "../../clients/redis";
 
 interface GoogleTokenResult {
   iss?: string;
@@ -77,7 +78,10 @@ const queries = {
     parent: any,
     { id }: { id: string },
     ctx: GraphQLContext
-  ) => prismaClient.user.findUnique({ where: { id } }),
+  ) => {
+    
+    prismaClient.user.findUnique({ where: { id } });
+  }
 };
 
 const extraResolvers = {
@@ -98,6 +102,55 @@ const extraResolvers = {
       });
       return result.map((el) => el.following);
     },
+    recommendedUsers: async (parent: any, {}: any, ctx: GraphQLContext) => {
+      if (!ctx.user) return [];
+
+      const cachedValue = await redisClient.get(
+        `RECOMMENDED_USERS:${ctx.user.id}`
+      );
+
+      if(cachedValue) {
+        console.log('cache found');
+        return JSON.parse(cachedValue);
+      }
+
+      const myFollowings = await prismaClient.follows.findMany({
+        where: {
+          follower: { id: ctx.user.id },
+        },
+        include: {
+          following: {
+            include: { followers: { include: { following: true } } },
+          },
+        },
+      });
+      const users: User[] = [];
+      for (const followings of myFollowings) {
+        // console.log(followings, "followings")
+        for (const followingOfFollowedUser of followings.following.followers) {
+          // console.log(followingOfFollowedUser, "followingOfFollowedUser1")
+          // console.log(followingOfFollowedUser.following.id, "followingOfFollowedUser2")
+          if (
+            followingOfFollowedUser.following.id !== ctx.user.id &&
+            myFollowings.findIndex(
+              (e) => e?.followingId === followingOfFollowedUser.following.id
+            ) < 0
+          ) {
+            // console.log(followingOfFollowedUser.following, "followingOfFollowedUser.following")
+            users.push(followingOfFollowedUser.following);
+          }
+        }
+      }
+
+      console.log('cache not found')
+      await redisClient.setex(
+        `RECOMMENDED_USERS:${ctx.user.id}`,
+        20,
+        JSON.stringify(users)
+      );
+
+      return users;
+    },
   },
 };
 
@@ -108,12 +161,15 @@ const mutations = {
     ctx: GraphQLContext
   ) => {
     if (!ctx.user || !ctx.user.id) throw new Error("unauthorized access");
+
     await prismaClient.follows.create({
       data: {
         follower: { connect: { id: ctx.user.id } },
         following: { connect: { id: to } },
       },
     });
+
+    await redisClient.del(`RECOMMENDED_USERS:${ctx.user.id}`)
     return true;
   },
   unFollowUser: async (

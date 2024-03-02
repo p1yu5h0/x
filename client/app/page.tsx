@@ -171,10 +171,12 @@ export default function Home() {
 
   return (
     <div className={inter.className}>
-      <div className="grid grid-cols-12 h-screen w-screen px-48">
+      <div className="grid grid-cols-12 h-screen w-screen px-36">
         <div className="col-span-1 sm:col-span-3 pt-10 px-2 ">
           <div className="text-4xl ml-6 h-fit hover:bg-gray-800 rounded-full p-2 cursor-pointer transition-all w-fit">
-            <BsTwitter />
+            <Link href={`/`} >
+              <BsTwitter />
+            </Link>
           </div>
           <div className="m-3 ml-2 mt-5 text-2xl pr-4">
             <ul>
@@ -287,11 +289,36 @@ export default function Home() {
             tweet ? <FeedCard key={tweet?.id} data={tweet as Tweet} /> : null
           )}
         </div>
-        <div className="col-span-3 p-5">
+        <div className="col-span-3 mx-3 my-3">
           {!user && (
             <div className="p-5 rounded-lg">
               <h1 className="my-2 text-2xl">New to Twitter?</h1>
               <GoogleLogin onSuccess={handleLoginWithGoogle} />
+            </div>
+          )}
+          {user?.recommendedUsers && (
+            <div className="p-5 rounded-lg ">
+              <h1 className="my-2 text-xl">Users you may know!</h1>
+              {user.recommendedUsers.map((users) => (
+                <div
+                  key={users?.id}
+                  className="flex items-center gap-2 p-2 text-sm"
+                >
+                  {users?.profileImageURL && (
+                    <Image
+                      src={users?.profileImageURL}
+                      alt="user-image"
+                      width={50}
+                      height={50}
+                      className="rounded-full"
+                    />
+                  )}
+                  <div className="flex flex-col gap-1 items-start">
+                    <div>@{users?.email.split("@")[0]}</div>
+                    <Link href={`/${users?.id}`} className="bg-slate-600 rounded-lg text-slate-400 text-sm px-2 py-0.25">View</Link>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>

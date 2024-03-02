@@ -1,19 +1,20 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node build/index",
     "build": "tsc -p .",
     "dev": "tsc-watch --onSuccess \"npm start\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pretty": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\""
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.5",
+    "prettier": "^3.2.5",
     "prisma": "^5.9.1",
     "tsc-watch": "^6.0.4",
     "typescript": "^5.3.3"
@@ -29,6 +30,8 @@
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
     "graphql": "^16.8.1",
+    "ioredis": "^5.3.2",
     "jsonwebtoken": "^9.0.2"
-  }
+  },
+  "description": ""
 }

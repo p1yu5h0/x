@@ -1,6 +1,6 @@
-import { types } from "./types"
-import { mutations } from "./mutations"
-import { resolvers } from "./resolvers"
-import { queries } from "./queries"
+import { types } from "./types";
+import { mutations } from "./mutations";
+import { resolvers } from "./resolvers";
+import { queries } from "./queries";
 
-export const Tweet = { types, mutations, resolvers, queries }
+export const Tweet = { types, mutations, resolvers, queries };
