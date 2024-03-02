@@ -90,7 +90,7 @@ const UserPage: NextPage<ServerProps> = (props) => {
         link: "/",
       },
     ],
-    [user?.id]
+    [user?.id],
   );
 
   const handleLoginWithGoogle = useCallback(
@@ -101,7 +101,7 @@ const UserPage: NextPage<ServerProps> = (props) => {
       }
       const { verifyGoogleToken } = await graphQLClient.request(
         verifyUserGoogleTokenQuery,
-        { token: googleToken }
+        { token: googleToken },
       );
 
       toast.success("Verification Successfull");
@@ -115,7 +115,7 @@ const UserPage: NextPage<ServerProps> = (props) => {
         queryKey: ["current-user"],
       });
     },
-    [queryClient]
+    [queryClient],
   );
 
   const handleLogout = useCallback(() => {

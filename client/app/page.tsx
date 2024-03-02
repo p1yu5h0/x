@@ -95,7 +95,7 @@ export default function Home() {
         link: "/",
       },
     ],
-    [user?.id]
+    [user?.id],
   );
 
   const handleInputChangeFile = useCallback((input: HTMLInputElement) => {
@@ -108,7 +108,7 @@ export default function Home() {
         {
           imageName: file.name,
           imageType: file.type,
-        }
+        },
       );
       if (getSignedURLForTweet) {
         toast.loading("uploading image", { id: "2" });
@@ -148,7 +148,7 @@ export default function Home() {
       }
       const { verifyGoogleToken } = await graphQLClient.request(
         verifyUserGoogleTokenQuery,
-        { token: googleToken }
+        { token: googleToken },
       );
 
       toast.success("Verification Successfull");
@@ -161,7 +161,7 @@ export default function Home() {
         queryKey: ["current-user"],
       });
     },
-    [queryClient]
+    [queryClient],
   );
 
   const handleLogout = useCallback(() => {
@@ -174,7 +174,7 @@ export default function Home() {
       <div className="grid grid-cols-12 h-screen w-screen px-36">
         <div className="col-span-1 sm:col-span-3 pt-10 px-2 ">
           <div className="text-4xl ml-6 h-fit hover:bg-gray-800 rounded-full p-2 cursor-pointer transition-all w-fit">
-            <Link href={`/`} >
+            <Link href={`/`}>
               <BsTwitter />
             </Link>
           </div>
@@ -286,7 +286,7 @@ export default function Home() {
             </div>
           </div>
           {tweets?.map((tweet) =>
-            tweet ? <FeedCard key={tweet?.id} data={tweet as Tweet} /> : null
+            tweet ? <FeedCard key={tweet?.id} data={tweet as Tweet} /> : null,
           )}
         </div>
         <div className="col-span-3 mx-3 my-3">
@@ -315,7 +315,12 @@ export default function Home() {
                   )}
                   <div className="flex flex-col gap-1 items-start">
                     <div>@{users?.email.split("@")[0]}</div>
-                    <Link href={`/${users?.id}`} className="bg-slate-600 rounded-lg text-slate-400 text-sm px-2 py-0.25">View</Link>
+                    <Link
+                      href={`/${users?.id}`}
+                      className="bg-slate-600 rounded-lg text-slate-400 text-sm px-2 py-0.25"
+                    >
+                      View
+                    </Link>
                   </div>
                 </div>
               ))}

@@ -25,18 +25,20 @@ const s3Client = new S3Client(s3ClientConfig);
 
 const queries = {
   getAllTweets: async () => {
-    const cachedTweets = await redisClient.get('ALL_TWEETS');
-    if(cachedTweets?.length) return JSON.parse(cachedTweets);
+    const cachedTweets = await redisClient.get("ALL_TWEETS");
+    if (cachedTweets?.length) return JSON.parse(cachedTweets);
 
-    const tweets = await prismaClient.tweet.findMany({ orderBy: { createdAt: "desc" } });
+    const tweets = await prismaClient.tweet.findMany({
+      orderBy: { createdAt: "desc" },
+    });
     await redisClient.set("ALL_TWEETS", JSON.stringify(tweets));
-    return tweets
+    return tweets;
   },
 
   getSignedURLForTweet: async (
     parent: any,
     { imageName, imageType }: { imageName: string; imageType: string },
-    cxt: GraphQLContext
+    cxt: GraphQLContext,
   ) => {
     if (!cxt.user || !cxt.user?.id) {
       throw new Error("you are unauthenticated");
@@ -62,9 +64,15 @@ const mutations = {
   createTweet: async (
     parent: any,
     { payload }: { payload: CreateTweetPayload },
-    ctx: GraphQLContext
+    ctx: GraphQLContext,
   ) => {
     if (!ctx.user) throw new Error("You are not authenticated");
+    const rateLimitFlag = await redisClient.get(
+      `RATE_LIMIT:TWEET:${ctx.user.id}`,
+    );
+    if (rateLimitFlag) {
+      throw new Error("please wait.......");
+    }
     const tweet = await prismaClient.tweet.create({
       data: {
         content: payload.content,
@@ -72,7 +80,8 @@ const mutations = {
         author: { connect: { id: ctx.user.id } },
       },
     });
-    await redisClient.del('ALL_TWEETS');
+    await redisClient.setex(`RATE_LIMIT:TWEET:${ctx.user.id}`, 10, 1);
+    await redisClient.del("ALL_TWEETS");
     return tweet;
   },
 };

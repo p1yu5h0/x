@@ -36,7 +36,7 @@ const queries = {
       googleOAuthURL.toString(),
       {
         responseType: "json",
-      }
+      },
     );
 
     console.log(data);
@@ -77,11 +77,10 @@ const queries = {
   getUserById: async (
     parent: any,
     { id }: { id: string },
-    ctx: GraphQLContext
+    ctx: GraphQLContext,
   ) => {
-    
     prismaClient.user.findUnique({ where: { id } });
-  }
+  },
 };
 
 const extraResolvers = {
@@ -106,11 +105,11 @@ const extraResolvers = {
       if (!ctx.user) return [];
 
       const cachedValue = await redisClient.get(
-        `RECOMMENDED_USERS:${ctx.user.id}`
+        `RECOMMENDED_USERS:${ctx.user.id}`,
       );
 
-      if(cachedValue) {
-        console.log('cache found');
+      if (cachedValue) {
+        console.log("cache found");
         return JSON.parse(cachedValue);
       }
 
@@ -133,7 +132,7 @@ const extraResolvers = {
           if (
             followingOfFollowedUser.following.id !== ctx.user.id &&
             myFollowings.findIndex(
-              (e) => e?.followingId === followingOfFollowedUser.following.id
+              (e) => e?.followingId === followingOfFollowedUser.following.id,
             ) < 0
           ) {
             // console.log(followingOfFollowedUser.following, "followingOfFollowedUser.following")
@@ -142,11 +141,11 @@ const extraResolvers = {
         }
       }
 
-      console.log('cache not found')
+      console.log("cache not found");
       await redisClient.setex(
         `RECOMMENDED_USERS:${ctx.user.id}`,
         20,
-        JSON.stringify(users)
+        JSON.stringify(users),
       );
 
       return users;
@@ -158,7 +157,7 @@ const mutations = {
   followUser: async (
     parent: any,
     { to }: { to: string },
-    ctx: GraphQLContext
+    ctx: GraphQLContext,
   ) => {
     if (!ctx.user || !ctx.user.id) throw new Error("unauthorized access");
 
@@ -169,13 +168,13 @@ const mutations = {
       },
     });
 
-    await redisClient.del(`RECOMMENDED_USERS:${ctx.user.id}`)
+    await redisClient.del(`RECOMMENDED_USERS:${ctx.user.id}`);
     return true;
   },
   unFollowUser: async (
     parent: any,
     { to }: { to: string },
-    ctx: GraphQLContext
+    ctx: GraphQLContext,
   ) => {
     if (!ctx.user || !ctx.user.id) throw new Error("unauthorized access");
     await prismaClient.follows.delete({
